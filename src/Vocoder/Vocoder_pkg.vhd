@@ -1,0 +1,49 @@
+
+library ieee;
+use ieee.std_logic_1164.all;
+
+use work.fixed_pkg.all;
+
+package Vocoder_pkg is
+    subtype vocoder_data_t     is sfixed(1 downto -16);
+    type vocoder_data_vector_t is array(natural range <>) of vocoder_data_t;
+
+    function vocoder_resize(a : sfixed) return vocoder_data_t;
+
+    subtype biquad_data_t is sfixed(3 downto -21);
+    function biquad_resize(a : sfixed) return biquad_data_t;
+
+    subtype vocoder_coef_t     is sfixed(1 downto -16);
+    type vocoder_coef_vector_t is array(natural range <>) of vocoder_coef_t;
+
+    constant CHANNELS : positive := 12;
+
+    constant SINE_INDEX_MAX : natural := 25;
+    constant SINE_TABLE : vocoder_coef_vector_t(0 to SINE_INDEX_MAX) := ("000000000000000000", "000001000000010011", "000010000000010110", "000010111111111000", "000011111110101010", "000100111100011100", "000101111000111101", "000110110100000000", "000111101101010100", "001000100100101100", "001001011001111001", "001010001100101110", "001010111100111110", "001011101010011110", "001100010101000000", "001100111100011100", "001101100000100110", "001110000001010110", "001110011110100011", "001110111000000110", "001111001101111000", "001111011111110101", "001111101101110111", "001111110111111011", "001111111101111111", "010000000000000000");
+
+    constant LOWPASS_A1 : vocoder_coef_t := "100000010110111110";
+    constant LOWPASS_A2 : vocoder_coef_t := "001111101001010010";
+    constant LOWPASS_B0 : vocoder_coef_t := "000000000000000100";
+    constant LOWPASS_B1 : vocoder_coef_t := "000000000000001000";
+    constant LOWPASS_B2 : vocoder_coef_t := "000000000000000100";
+    
+    constant BANDPASS_A1 : vocoder_coef_vector_t(0 to CHANNELS-1) := ("100000001010011100", "100000011100110011", "100000110110111101", "100001011000101101", "100010000001111000", "100010110010001111", "100011101001100011", "100100100111100010", "100101101011111100", "100110110110011100", "101000000110101111", "101001011100011111");
+    constant BANDPASS_A2 : vocoder_coef_vector_t(0 to CHANNELS-1) := ("001111111001100110", "001111110011010000", "001111101100111111", "001111100110110110", "001111100000110110", "001111011010111111", "001111010101010100", "001111001111110101", "001111001010100100", "001111000101100010", "001111000000110000", "001110111100001110");
+    constant BANDPASS_B0 : vocoder_coef_vector_t(0 to CHANNELS-1) := ("000000000011001101", "000000000110011000", "000000001001100000", "000000001100100101", "000000001111100101", "000000010010100000", "000000010101010110", "000000011000000101", "000000011010101110", "000000011101001111", "000000011111101000", "000000100001111001");
+    constant BANDPASS_B1 : vocoder_coef_vector_t(0 to CHANNELS-1) := ("000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000", "000000000000000000");
+    constant BANDPASS_B2 : vocoder_coef_vector_t(0 to CHANNELS-1) := ("111111111100110011", "111111111001101000", "111111110110100000", "111111110011011011", "111111110000011011", "111111101101100000", "111111101010101010", "111111100111111011", "111111100101010010", "111111100010110001", "111111100000011000", "111111011110000111");
+end Vocoder_pkg;
+
+package body Vocoder_pkg is
+
+    function vocoder_resize(a : sfixed) return vocoder_data_t is
+    begin
+        return resize(a, vocoder_data_t'left, vocoder_data_t'right);
+    end vocoder_resize;
+
+    function biquad_resize(a : sfixed) return biquad_data_t is
+    begin
+        return resize(a, biquad_data_t'left, biquad_data_t'right);
+    end biquad_resize;
+
+end Vocoder_pkg;
