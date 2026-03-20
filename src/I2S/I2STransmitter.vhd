@@ -58,8 +58,6 @@ begin
                 timer_div10_reg <= timer_div10_reg + 1;
             end if;
 
-            
-            timer_div10_reg <= timer_div10_reg + 1;
         end if;
     end process p_timer_div10_reg;
 
